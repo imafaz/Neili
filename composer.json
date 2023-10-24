@@ -1,0 +1,33 @@
+{
+    "name": "imafaz/neili",
+    "description": "neili is a lightweight library for managing and creating automation for telegram api bots",
+    "type": "library",
+    "version": "1.0.0",
+    "license": "MIT",
+    "keywords": [
+        "imafaz",
+        "neili",
+        "robot telegram",
+        "telegram bot",
+        "api telegram",
+        "telegram api robot"
+    ],
+       "autoload": {
+        "psr-4": {
+            "neili\\": "src"
+        }
+    },
+    "homepage": "https://github.com/imafaz/neili",
+    "authors": [
+        {
+            "name": "Abolfazl Majidi (MrAfaz)",
+            "email": "abolfazlmajidi100@gmail.com",
+            "homepage": "https://mrafaz.com"
+        }
+    ],
+    "require": {
+        "php-64bit": ">=7.4"
+    },
+
+    "minimum-stability": "stable"
+}
