@@ -12,13 +12,13 @@
  */
 
 
-
 declare(strict_types=1);
 
 
 namespace TelegramBot;
 
 use Exception;
+use Random\Engine\Secure;
 
 /**
  * @method array sendMessage(int $chatId, string $text, string $keyboard = null, array $params = null)
@@ -26,10 +26,22 @@ use Exception;
 class Neili
 {
 
+
+    /**
+     * debugging mode
+     *
+     * @constant int
+     */
     const NONE = 0;
     const LOGGING = 1;
     const FATAL = 2;
 
+
+    /**
+     * logging type
+     *
+     * @constant int
+     */
     const DEBUG = 10;
     const INFO = 11;
     const WARNINNG = 12;
@@ -81,7 +93,7 @@ class Neili
      * @return Neili
      */
 
-    public function __construct($accessToken)
+    public function __construct(string $accessToken)
     {
         if (function_exists('ini_set')) {
             ini_set('log_errors', '1');
@@ -123,7 +135,7 @@ class Neili
      * @param int $level
      * @return void
      */
-    protected function debug(string $message, int $level)
+    protected function debug(string $message, int $level): void
     {
         if ($this->debugType = Neili::LOGGING) {
             $this->log($message, $level);
@@ -138,6 +150,30 @@ class Neili
     }
 
 
+
+
+    /**
+     * receive telegram hook updates
+     *
+     * @param string $hash
+     * @return array|bool
+     */
+    public function handleUpdate(string $hash = null)
+    {
+        if (!is_null($hash)) {
+
+            $headers = getallheaders();
+            if ($hash != $headers['X-Telegram-Bot-Api-Secret-Token']) {
+                $this->debug('secret token  invalid ', Neili::INFO);
+                return false;
+            }
+        }
+        $hook = json_decode(file_get_contents('php://input'), true);
+        return $hook;
+    }
+
+
+
     /**
      * send http request to telegram api
      *
@@ -145,7 +181,7 @@ class Neili
      * @param array $params
      * @return array
      */
-    protected function request($method, $params)
+    protected function request(string $method, array $params): array
     {
         $handler = curl_init();
 
@@ -169,7 +205,7 @@ class Neili
         }
     }
 
-        /**
+    /**
      * send http request to telegram api
      *
      * @param int $chatId
