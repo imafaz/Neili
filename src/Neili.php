@@ -158,12 +158,12 @@ class Neili
      * @param string $hash
      * @return array|bool
      */
-    public function handleUpdate(string $hash = null)
+    public function handleUpdate(string $secretToken = null)
     {
-        if (!is_null($hash)) {
+        $headers = getallheaders();
+        if (!is_null($secretToken) && isset($headers['X-Telegram-Bot-Api-Secret-Token'])) {
 
-            $headers = getallheaders();
-            if ($hash != $headers['X-Telegram-Bot-Api-Secret-Token']) {
+            if ($secretToken != $headers['X-Telegram-Bot-Api-Secret-Token']) {
                 $this->debug('secret token  invalid ', Neili::INFO);
                 return false;
             }

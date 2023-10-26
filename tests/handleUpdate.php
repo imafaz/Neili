@@ -12,13 +12,18 @@ $bot = new Neili($token);
 
 
 // handle received update
-$update = $bot->handleUpdate('secret-hash'); // or $update = $bot->handleUpdate();
+$update = $bot->handleUpdate('my-custom-secret'); // or $update = $bot->handleUpdate();
 
-// check chat and send message
-$message = $update['message'];
-$chatType = $message['chat']['type'];
-$chatId = $message['chat']['id'];
 
-if($chatType == '')
-$message = 'hello  this message sended with neili!';
-$bot->sendMessage($chatId, $message);
+// check valid update
+if ($update) {
+
+    // check chat and send message
+    $message = $update['message'];
+    $chatType = $message['chat']['type'];
+    $chatId = $message['chat']['id'];
+    if ($chatType == 'private') {
+        $message = 'hello  this message sended with neili!';
+        $bot->sendMessage($chatId, $message);
+    }
+}
