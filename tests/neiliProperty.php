@@ -22,12 +22,15 @@ $bot->apiUrl = 'https://api.telegram.org/bot';
 $bot->logFile = 'neili.log';
 
 
-// valid value: Neili::FATAL , Neili::LOGGING , Neili::NONE
-// default , recommended: Neili::LOGGING
-$bot->debugType = Neili::LOGGING;
+
+ // enable print log
+$bot->printLog = true;
 
 
 // send message
 $chatId = '1826312667';
 $message = 'This message was sent by Neili Library';
-$bot->sendMessage($chatId, $message);
+$content = $bot->sendMessage($message, $message);
+
+/// print response
+var_dump($content);

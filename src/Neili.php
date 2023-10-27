@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 
 /**
  * lightweight library for managing and creating automation for telegram api bots.
@@ -11,49 +12,16 @@
  * @link https://github.com/imafaz/neili
  */
 
-
-declare(strict_types=1);
-
-
 namespace TelegramBot;
 
-use Exception;
-use Random\Engine\Secure;
+use EasyLog\Logger;
+
 
 /**
  * @method array sendMessage(int $chatId, string $text, string $keyboard = null, array $params = null)
  */
 class Neili
 {
-
-
-    /**
-     * debugging mode
-     *
-     * @constant int
-     */
-    const NONE = 0;
-    const LOGGING = 1;
-    const FATAL = 2;
-
-
-    /**
-     * logging type
-     *
-     * @constant int
-     */
-    const DEBUG = 10;
-    const INFO = 11;
-    const WARNINNG = 12;
-    const ERROR = 13;
-
-
-    /**
-     * debugging type
-     *
-     * @var int
-     */
-    public $debugType = Neili::LOGGING;
 
     /**
      * bot api access token
@@ -64,6 +32,14 @@ class Neili
 
 
     /**
+     * loggger object
+     *
+     * @var object
+     */
+    private $logger;
+
+
+    /**
      * telegram api url
      *
      * @var string
@@ -71,20 +47,21 @@ class Neili
     public $apiUrl = 'https://api.telegram.org/bot';
 
 
-    /**
-     * api webhook hash
-     *
-     * @var string
-     */
-    private $webhookHash;
-
 
     /**
      * log file name
      *
      * @var string
      */
-    public $logFile = 'neili.log';
+    private $logFile = 'neili.log';
+
+
+        /**
+     * print logs
+     *
+     * @var string
+     */
+    private $printlog = false;
 
     /**
      * setup neili object
@@ -95,59 +72,45 @@ class Neili
 
     public function __construct(string $accessToken)
     {
-        if (function_exists('ini_set')) {
-            ini_set('log_errors', '1');
-            ini_set('error_log', $this->logFile);
-        }
+        $this->logger = new Logger($this->logFile,$this->printlog);
         $this->accessToken = $accessToken;
     }
 
 
-    /**
-     * writing log
+
+        /**
+     * setup Neili property
      *
-     * @param string $message
-     * @param int $level
+     * @param string $property
+     * @param string $value
      * @return void
      */
-    protected function log(string $message, int $level): void
+    public function __set($property, $value)
     {
-
-        if ($level == Neili::DEBUG) {
-            $log = sprintf("[%s] [%s] %s\n", date('Y-m-d H:i:s'), 'DEBUG', $message);
-        } elseif ($level == Neili::INFO) {
-            $log = sprintf("[%s] [%s] %s\n", date('Y-m-d H:i:s'), 'INFO', $message);
-        } elseif ($level == Neili::WARNINNG) {
-            $log = sprintf("[%s] [%s] %s\n", date('Y-m-d H:i:s'), 'WARNNING', $message);
-        } elseif ($level == Neili::ERROR) {
-            $log = sprintf("[%s] [%s] %s\n", date('Y-m-d H:i:s'), 'ERROR', $message);
-        } else {
-            throw new Exception('invalid level type!');
+        if ($property == 'printLog') {
+            $this->logger->printLog = $value;
+        } elseif ($property == 'logFile') {
+            $this->logger->logFile = $value;
+            if (function_exists('ini_set')) {
+                ini_set('log_errors', '1');
+                ini_set('error_log', $this->logFile);
+            }
         }
-
-        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
+
 
     /**
-     * debugging bugs:{
+     * using custom method
      *
-     * @param string $message
-     * @param int $level
+     * @param method $property
+     * @param string $value
      * @return void
      */
-    protected function debug(string $message, int $level): void
+    public function __call($method, $arguments)
     {
-        if ($this->debugType = Neili::LOGGING) {
-            $this->log($message, $level);
-        } elseif ($this->debugType == Neili::FATAL) {
-            $this->log($message, $level);
-            throw new Exception($message);
-        } elseif ($this->debugType = Neili::NONE) {
-            return;
-        } else {
-            throw new Exception('invalid debug type!');
-        }
+        return $this->request($method, $arguments[0]);
     }
+
 
 
 
@@ -163,11 +126,11 @@ class Neili
         $headers = getallheaders();
         if (!is_null($secretToken)) {
             if (!isset($headers['X-Telegram-Bot-Api-Secret-Token'])) {
-                $this->debug('The secret token was not found in the header', Neili::WARNINNG);
+                $this->logger->error('The secret token was not found in the header');
                 return false;
             }
             if ($secretToken != $headers['X-Telegram-Bot-Api-Secret-Token']) {
-                $this->debug('secret token invalid', Neili::WARNINNG);
+                $this->logger->error('secret token invalid');
                 return false;
             }
         }
@@ -184,7 +147,7 @@ class Neili
      * @param array $params
      * @return array
      */
-    protected function request(string $method, array $params): array
+    public function request(string $method, array $params): array
     {
         $handler = curl_init();
 
@@ -197,16 +160,17 @@ class Neili
 
         if ($result === false) {
             $log = 'curl telegram api failed, error no: ' . curl_errno($handler);
-            $this->debug($log, Neili::ERROR);
+            $this->logger->error($log);
             return ['ok' => false, 'description' => $log];
         } else {
             $result = json_decode($result, true);
             if (!$result['ok']) {
-                $this->debug('telegram method error ' . $result['description'], Neili::WARNINNG);
+                $this->logger->debug('telegram method error ' . $result['description']);
             }
             return $result;
         }
     }
+
 
     /**
      * send http request to telegram api

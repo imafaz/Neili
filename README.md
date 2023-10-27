@@ -19,10 +19,18 @@
 - Create an instance of Neili: <br>
 `$bot = new Neili('token');`<br
 - Send a simple message:<br>
-`$chatId = '1826312667'; // telegram user id`<br>
-`$message = 'hello  this message sended with neili!';`<br>
-`$bot->sendMessage($chatId, $message);`
+```php
+$chatId = '1826312667'; // telegram user id
+$message = 'hello  this message sended with neili!';
+$bot->sendMessage($chatId, $message);
+```
 
-### You can learn the training of other methods in the test folder
+### Usable methods:
+- `sendMessage(int $chatId, string $text, string $keyboard = null, array $params = null)` <br>
+
+### If you don't find the method you need, you can use below:
+- `$bot->methodName(array $parameters)` <br>
+- More methods: [TELEGRAM DOCUMENT](https://core.telegram.org/bots/api)
+
 # License
 - Medoo is released under the [MIT License](https://opensource.org/licenses/MIT).
