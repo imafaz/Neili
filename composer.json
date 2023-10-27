@@ -14,7 +14,7 @@
     ],
     "require": {
         "php-64bit": ">=7.0",
-        "imafaz/EasyLog": "1.0.0"
+        "imafaz/easylog": "^1"
     },
     "autoload": {
         "psr-4": {
