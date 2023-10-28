@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "imafaz\\Neili\\": "src"
+            "Neili\\": "src/"
         }
     },
     "homepage": "https://github.com/imafaz/neili",
