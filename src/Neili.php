@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 
 /**
@@ -18,7 +20,13 @@ use EasyLog\Logger;
 
 
 /**
+ * @method void __construct(string $accessToken)
+ * @method void __set($property, $value)
+ * @method void __call($method, $arguments)
+ * @method array|false handleUpdate(string $secretToken = null)
  * @method array sendMessage(int $chatId, string $text, string $keyboard = null, array $params = null)
+ * @method string keyboard(string $secretToken = null)
+ * @method array|false handleUpdate(string $secretToken = null)
  */
 class Neili
 {
@@ -56,7 +64,7 @@ class Neili
     private $logFile = 'neili.log';
 
 
-        /**
+    /**
      * print logs
      *
      * @var string
@@ -72,13 +80,13 @@ class Neili
 
     public function __construct(string $accessToken)
     {
-        $this->logger = new Logger($this->logFile,$this->printlog);
+        $this->logger = new Logger($this->logFile, $this->printlog);
         $this->accessToken = $accessToken;
     }
 
 
 
-        /**
+    /**
      * setup Neili property
      *
      * @param string $property
@@ -147,7 +155,7 @@ class Neili
      * @param array $params
      * @return array
      */
-    public function request(string $method, array $params): array
+    private function request(string $method, array $params): array
     {
         $handler = curl_init();
 
@@ -189,5 +197,42 @@ class Neili
             'reply_markup' => $keyboard,
         ];
         return $this->request('sendMessage', is_null($params) ? $data : array_merge($data, $params));
+    }
+
+
+    /**
+     * create keyboard
+     *
+     * @param array $buttons
+     * @param int $raw
+     * @param bool $resize
+     * @return json
+     */
+    public static function keyboard(array $buttons, int $raw = 2, bool $resize = true)
+    {
+        $buttonChunks = array_chunk($buttons, $raw);
+        $keyboard = array_map(fn ($buttonRow) => array_map(fn ($button) => ['text' => $button], $buttonRow), $buttonChunks);
+        return json_encode(['resize_keyboard' => $resize, 'keyboard' => $keyboard]);
+    }
+
+    /**
+     * create inlineKeyboard
+     *
+     * @param array $buttons
+     * @param int $raw
+     * @return json
+     */
+    public static function inlineKeyboard(array $keyboard, int $row = 2)
+    {
+        $buttonChunks = array_chunk($keyboard, $row, true);
+        $inlineKeyboard = [];
+        foreach ($buttonChunks as $buttonRow) {
+            $buttons = [];
+            foreach ($buttonRow as $text => $callbackData) {
+                $buttons[] = ['text' => $text, 'callback_data' => $callbackData];
+            }
+            $inlineKeyboard[] = $buttons;
+        }
+        return json_encode(['inline_keyboard' => $inlineKeyboard]);
     }
 }
