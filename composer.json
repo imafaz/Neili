@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Neili\\": "src/"
+            "TelegramBot\\": "src/"
         }
     },
     "homepage": "https://github.com/imafaz/neili",
