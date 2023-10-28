@@ -163,6 +163,7 @@ class Neili
             CURLOPT_URL => $this->apiUrl . $this->accessToken . '/' . $method,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POSTFIELDS => $params,
+            CURLOPT_SSL_VERIFYPEER =>false
         ]);
         $result =  curl_exec($handler);
 
